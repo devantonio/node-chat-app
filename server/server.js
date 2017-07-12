@@ -28,18 +28,15 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 //everytime a user connects to our app we can print a message to the console
 	console.log('New user connected');
 
-	socket.emit('newMessage', {
-		from: 'mike@example.com',
-		text: 'Hey. What is going on?',
-		createdAt: '123'
-	});
 
-	// socket.emit('createEmail', (newEmail) => {//taking in socket.emit('createEmail', from index.js
-	// 	console.log('createEmail', newEmail);
-	// });
-
-	socket.on('createMessage', (message) =>{//listener event
+	socket.on('createMessage', (message) =>{//listener event//LISTENING FOR DATA TO SEND TO SERVER
 		console.log('createMessage', message);
+		//socket.emit, emits and event to a single connection...io.emit emits an event to every single connection 
+		io.emit('newMessage', {
+			from: message.from,
+			text: message.text,
+			createdAt: new Date().getTime()
+		});
 	});
 
 	socket.on('disconnect', () => {
@@ -51,3 +48,36 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 server.listen(port, () => {
 	console.log(`started up on port ${port}`);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// socket.emit('newMessage', {//SENT TO CLIENT//FROM HERE, THE SERVER//the second arf is message arg in index.js
+	// 	from: 'mike@example.com',
+	// 	text: 'Hey. What is going on?',
+	// 	createdAt: '123'
+	// });
+
+
+	// socket.emit('createEmail', (newEmail) => {//taking in socket.emit('createEmail', from index.js
+	// 	console.log('createEmail', newEmail);
+	// });
