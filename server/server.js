@@ -28,9 +28,24 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 //everytime a user connects to our app we can print a message to the console
 	console.log('New user connected');
 
+	socket.emit('newMessage', {
+		from: 'mike@example.com',
+		text: 'Hey. What is going on?',
+		createdAt: '123'
+	});
+
+	// socket.emit('createEmail', (newEmail) => {//taking in socket.emit('createEmail', from index.js
+	// 	console.log('createEmail', newEmail);
+	// });
+
+	socket.on('createMessage', (message) =>{//listener event
+		console.log('createMessage', message);
+	});
+
 	socket.on('disconnect', () => {
 		console.log('Client disconnected');
 	});
+
 });
 
 server.listen(port, () => {
