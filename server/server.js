@@ -28,6 +28,17 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 //everytime a user connects to our app we can print a message to the console
 	console.log('New user connected');
 
+	socket.emit('newMessage', {
+		from: 'Admin',
+		text: 'Welcome to the chat app',
+		createdAt: new Date().getTime()
+	});
+
+	socket.broadcast.emit('newMessage', {
+		from: 'Admin',
+		text: 'New user joined',
+		createdAt: new Date().getTime()
+	});
 
 	socket.on('createMessage', (message) =>{//listener event//LISTENING FOR DATA TO SEND TO SERVER
 		console.log('createMessage', message);
@@ -37,6 +48,14 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 			text: message.text,
 			createdAt: new Date().getTime()
 		});
+
+		//broadcasting is the term for emiting an event to everyone but one specific user
+		//this message will be sent to everyone but the person that sends it
+		// socket.broadcast.emit('newMessage', {
+		// 	from: message.from,
+		// 	text: message.text,
+		// 	createdAt: new Date().getTime()
+		// });
 	});
 
 	socket.on('disconnect', () => {
