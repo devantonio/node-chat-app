@@ -33,12 +33,12 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 
 	socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
 
-	socket.on('createMessage', (message) =>{//listener event//LISTENING FOR DATA TO SEND TO SERVER
+	socket.on('createMessage', (message, callback) =>{//listener event//LISTENING FOR DATA TO SEND TO SERVER
 		console.log('createMessage', message);
 		//socket.emit, emits and event to a single connection...io.emit emits an event to every single connection 
 		io.emit('newMessage', generateMessage(message.from, message.text));
+		callback('This is from the server');//calling the function in createMessage thats in index.js//send an event back to the front end
 		
-
 		//broadcasting is the term for emiting an event to everyone but one specific user
 		//this message will be sent to everyone but the person that sends it
 		// socket.broadcast.emit('newMessage', {
