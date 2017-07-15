@@ -9,7 +9,7 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 const publicPath = path.join(__dirname + '/../public');
 const port = process.env.PORT || 3000;//configure heroku
 var app = express();
@@ -33,31 +33,25 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 
 	socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
 
-	socket.on('createMessage', (message, callback) =>{//listener event//LISTENING FOR DATA TO SEND TO SERVER
+	socket.on('createMessage', (message, callback) => {//listener event//LISTENING FOR DATA TO SEND TO SERVER
 		console.log('createMessage', message);
 		//socket.emit, emits and event to a single connection...io.emit emits an event to every single connection 
 		io.emit('newMessage', generateMessage(message.from, message.text));
-		callback('This is from the server');//calling the function in createMessage thats in index.js//send an event back to the front end
-		
-		//broadcasting is the term for emiting an event to everyone but one specific user
-		//this message will be sent to everyone but the person that sends it
-		// socket.broadcast.emit('newMessage', {
-		// 	from: message.from,
-		// 	text: message.text,
-		// 	createdAt: new Date().getTime()
-		// });
+		callback('This is from the server');//calling the function in createMessage thats in index.js//send an event back to the front end	
+	});
+
+	socket.on('createLocationMessage', (coords) => {
+		io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
 	});
 
 	socket.on('disconnect', () => {
-		console.log('Client disconnected');
+		console.log('user disconnected');
 	});
-
 });
 
 server.listen(port, () => {
 	console.log(`started up on port ${port}`);
 });
-
 
 
 
