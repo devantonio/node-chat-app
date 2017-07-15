@@ -37,7 +37,7 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 		console.log('createMessage', message);
 		//socket.emit, emits and event to a single connection...io.emit emits an event to every single connection 
 		io.emit('newMessage', generateMessage(message.from, message.text));
-		callback('This is from the server');//calling the function in createMessage thats in index.js//send an event back to the front end	
+		callback();//the acklowlegment function is called//calling the function in createMessage thats in index.js//send an event back to the front end	
 	});
 
 	socket.on('createLocationMessage', (coords) => {
