@@ -14,58 +14,77 @@ var socket = io();//initiate a connection request making a request from the clie
 
 		socket.on('newMessage', function (message) {//LISTENTIG FOR ANY DATA TO BE SENT //message arg is data that is coming in
 			var formattedTime = moment(message.createdAt).format('h:mm a');
-			console.log('newMessage', message);
-			var li = $('<li></li>');
-			li.text(`${message.from} ${formattedTime}: ${message.text}`);
+			var template = $('#message-template').html();
+			var html = Mustache.render(template, {
+				text: message.text,
+				from: message.from,
+				createdAt: formattedTime
+			}); 
 
-			$('#messages').append(li);
+			$('#messages').append(html);
+			// var formattedTime = moment(message.createdAt).format('h:mm a');
+			// console.log('newMessage', message);
+			// var li = $('<li></li>');
+			// li.text(`${message.from} ${formattedTime}: ${message.text}`);
+
+			// $('#messages').append(li);
 		});
 		
- socket.on('newLocationMessage', function (message) {
- 	var formattedTime = moment(message.createdAt).format('h:mm a');
- 	var li = $('<li></li>');
- 	var a = $('<a target="_blank">My current location</a>');
+		socket.on('newLocationMessage', function (message) {
+			var formattedTime = moment(message.createdAt).format('h:mm a');
+			var template = $('#location-message-template').html();
+			var html = Mustache.render(template, {
+				url: message.url,
+				from: message.from,
+				createdAt: formattedTime
+			}); 
 
- 	li.text(`${message.from} ${formattedTime}: `);
- 	a.attr('href', message.url);
- 	li.append(a);
- 	$('#messages').append(li);
- });
+			$('#messages').append(html);
 
-$('#message-form').on('submit', function (e) {//we need to access the event arg to override the default behavior
-	e.preventDefault();
+		 // 	var formattedTime = moment(message.createdAt).format('h:mm a');
+		 // 	var li = $('<li></li>');
+		 // 	var a = $('<a target="_blank">My current location</a>');
 
-	var messageTextbox = $('[name=message]');
-
-	socket.emit('createMessage', {
-		from: 'User',
-		text: messageTextbox.val()
-	}, function () {//acknowlegment
-		messageTextbox.val('');
-	});
-});
-		
-
-var locationButton = $('#send-location');
-locationButton.on('click', function () {
-	if (!navigator.geolocation) {
-		return alert('Geolocation not supported by your browser.');
-	}
-
-	locationButton.attr('disabled', 'disabled').text('Sending Location...');
-	
-
-	navigator.geolocation.getCurrentPosition(function (position) {
-		locationButton.removeAttr('disabled').text('Send Location');
-		socket.emit('createLocationMessage', {
-			latitude: position.coords.latitude,
-			longitude: position.coords.longitude
+		 // 	li.text(`${message.from} ${formattedTime}: `);
+		 // 	a.attr('href', message.url);
+		 // 	li.append(a);
+			// $('#messages').append(li);
 		});
-	}, function () {
-		locationButton.removeAttr('disabled').text('Send Location');//if we're not able to fetch the location or if user denied access to location
-		alert('Unable to fetch location.');
-	});
-});
+
+		$('#message-form').on('submit', function (e) {//we need to access the event arg to override the default behavior
+			e.preventDefault();
+
+			var messageTextbox = $('[name=message]');
+
+			socket.emit('createMessage', {
+				from: 'User',
+				text: messageTextbox.val()
+			}, function () {//acknowlegment
+				messageTextbox.val('');
+			});
+		});
+				
+
+		var locationButton = $('#send-location');
+		locationButton.on('click', function () {
+			if (!navigator.geolocation) {
+				return alert('Geolocation not supported by your browser.');
+			}
+
+			locationButton.attr('disabled', 'disabled').text('Sending Location...');
+			
+
+			navigator.geolocation.getCurrentPosition(function (position) {
+				locationButton.removeAttr('disabled').text('Send Location');
+				socket.emit('createLocationMessage', {
+					latitude: position.coords.latitude,
+					longitude: position.coords.longitude
+				});
+			}, function () {
+				locationButton.removeAttr('disabled').text('Send Location');//if we're not able to fetch the location or if user denied access to location
+				alert('Unable to fetch location.');
+			});
+		});
 
 
 
