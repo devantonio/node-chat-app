@@ -1,5 +1,19 @@
 var socket = io();//initiate a connection request making a request from the client to the server to open up a web socket and keep that connection open
 
+function scrollToBottom () {
+	var messages = $('#messages');
+	var newMessage = messages.children('li:last-child')
+
+	var clientHeight = messages.prop('clientHeight');
+	var scrollTop = messages.prop('scrollTop');
+	var scrollHeight = messages.prop('scrollHeight');
+	var newMessageHeight = newMessage.innerHeight();
+	var lastMessageHeight = newMessage.prev().innerHeight();//prev() moves us the the previous child//we're now at the second to last list item
+
+	if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+		messages.scrollTop(scrollHeight);
+	} 
+}
 
 //we already have socket above so we dont need to give back the socket arg
 		socket.on('connect', function () {
@@ -22,6 +36,8 @@ var socket = io();//initiate a connection request making a request from the clie
 			}); 
 
 			$('#messages').append(html);
+
+			scrollToBottom();
 			// var formattedTime = moment(message.createdAt).format('h:mm a');
 			// console.log('newMessage', message);
 			// var li = $('<li></li>');
@@ -40,7 +56,7 @@ var socket = io();//initiate a connection request making a request from the clie
 			}); 
 
 			$('#messages').append(html);
-
+			scrollToBottom();
 		 // 	var formattedTime = moment(message.createdAt).format('h:mm a');
 		 // 	var li = $('<li></li>');
 		 // 	var a = $('<a target="_blank">My current location</a>');
