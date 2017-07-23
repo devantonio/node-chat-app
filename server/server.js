@@ -37,7 +37,7 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 
 	socket.on('join', (params, callback) => {
 		if (!isRealString(params.name) || !isRealString(params.room)) {
-			callback('Name and room name are required.');
+			return callback('Name and room name are required.');
 		}
 
 		socket.join(params.room);
