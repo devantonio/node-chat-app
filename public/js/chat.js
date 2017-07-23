@@ -17,13 +17,30 @@ function scrollToBottom () {
 
 //we already have socket above so we dont need to give back the socket arg
 		socket.on('connect', function () {
-			console.log('Connected to server');
-			
-			
+			var params = $.deparam(window.location.search);
+
+			socket.emit('join', params, function (err) {
+				if (err) {
+					alert(err);
+					window.location.href = '/';
+				} else {
+					console.log('No error');
+				}
+			});
 		});
 
 		socket.on('disconnect', function ()  {
 			console.log('Disconnected from server');
+		});
+
+		socket.on('updateUserList', function (users) {
+			var ol = $('<ol></o>');
+
+			users.forEach(function (user) {
+				ol.append($('<li></li>').text(user));
+			});
+
+			$('#users').html(ol);
 		});
 
 		socket.on('newMessage', function (message) {//LISTENTIG FOR ANY DATA TO BE SENT //message arg is data that is coming in

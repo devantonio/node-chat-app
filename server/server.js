@@ -10,11 +10,15 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
+const {isRealString} = require('./utils/validation');
+const {Users} = require('./utils/users');
+
 const publicPath = path.join(__dirname + '/../public');
 const port = process.env.PORT || 3000;//configure heroku
 var app = express();
 var server = http.createServer(app);//express is intergrated with http//making this change so the server can use socket.io
 var io = socketIO(server);//passing in the server we want to use with our web sockets//we get back our web sockets server//this is how we will communicate with the server and the clients
+var users = new Users();
 
 app.use(express.static(publicPath));
 
@@ -29,9 +33,28 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 //everytime a user connects to our app we can print a message to the console
 	console.log('New user connected');
 
-	socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
+	
 
-	socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
+	socket.on('join', (params, callback) => {
+		if (!isRealString(params.name) || !isRealString(params.room)) {
+			return callback('Name and room name are required.');
+		}
+
+		socket.join(params.room);
+		users.removeUser(socket.id);
+		users.addUser(socket.id, params.name, params.room)
+
+		// socket.leave('The Office Fans');
+		// io.emit -> io.to('The Office Fans').emit
+		// socket.broadcast.emit -> socket.broadcast.to('The Office Fans').emit
+		// socket.emit
+
+		io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+		socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
+		socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined`));
+		
+		callback();//we still want to call the callback but we dont wont to pass any arguments in
+	});
 
 	socket.on('createMessage', (message, callback) => {//listener event//LISTENING FOR DATA TO SEND TO SERVER
 		console.log('createMessage', message);
@@ -45,7 +68,10 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 	});
 
 	socket.on('disconnect', () => {
-		console.log('user disconnected');
+		var user = users.removeUser(socket.id);
+
+		io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+		io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left the room.`));
 	});
 });
 
