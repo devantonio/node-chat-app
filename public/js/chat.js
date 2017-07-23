@@ -51,7 +51,6 @@ function scrollToBottom () {
 				from: message.from,
 				createdAt: formattedTime
 			}); 
-
 			$('#messages').append(html);
 
 			scrollToBottom();
@@ -88,9 +87,10 @@ function scrollToBottom () {
 			e.preventDefault();
 
 			var messageTextbox = $('[name=message]');
-
+			var currentUser = $('[name=name]');
+			var params = $.deparam(window.location.search);
+			
 			socket.emit('createMessage', {
-				from: 'User',
 				text: messageTextbox.val()
 			}, function () {//acknowlegment
 				messageTextbox.val('');

@@ -57,14 +57,26 @@ io.on('connection', (socket) => {//socket//represents an individual socket as op
 	});
 
 	socket.on('createMessage', (message, callback) => {//listener event//LISTENING FOR DATA TO SEND TO SERVER
+		var user = users.getUser(socket.id);
+
+		if (user && isRealString(message.text)) {
+			//io.emit, emits and event to a single connection...io.emit emits an event to every single connection 
+		io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+		}
+
 		console.log('createMessage', message);
-		//socket.emit, emits and event to a single connection...io.emit emits an event to every single connection 
-		io.emit('newMessage', generateMessage(message.from, message.text));
+		
 		callback();//the acklowlegment function is called//calling the function in createMessage thats in index.js//send an event back to the front end	
 	});
 
 	socket.on('createLocationMessage', (coords) => {
-		io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+		var user = users.getUser(socket.id);
+
+		 
+			//io.emit, emits and event to a single connection...io.emit emits an event to every single connection 
+		io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+		 
+		
 	});
 
 	socket.on('disconnect', () => {
